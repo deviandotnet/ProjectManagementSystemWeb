@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand: #087f78;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f6f8fb;
+  --color-ink: #172033;
+  --color-ink-muted: #59657a;
+  --color-border: #d9dfeb;
+  --color-success: #16794b;
+  --color-warning: #9a6700;
+  --color-danger: #b42318;
+  --color-auth-accent: #087f78;
+  --color-auth-brand: #082927;
+  --color-auth-brand-soft: #113b38;
+  --color-auth-brand-ink: #effcf9;
+  --color-auth-brand-muted: #aed0cb;
+  --color-auth-brand-line: #315552;
+  --color-auth-canvas: #eef4f3;
+  --color-auth-surface: #fbfdfc;
+  --color-auth-ink: #132a28;
+  --color-auth-muted: #536b68;
+  --color-auth-border: #cbdad7;
+}
+
+@layer base {
+  :root {
+    color: var(--color-ink);
+    background: var(--color-surface-muted);
+    font-family:
+      'Segoe UI Variable', 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-width: 20rem;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  :focus-visible {
+    outline: 0.1875rem solid var(--color-brand);
+    outline-offset: 0.1875rem;
+  }
+
+  .auth-password-input::-ms-reveal,
+  .auth-password-input::-ms-clear {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-auth-accent: #63d6cd;
+    --color-auth-brand: #061817;
+    --color-auth-brand-soft: #0d302d;
+    --color-auth-brand-ink: #effcf9;
+    --color-auth-brand-muted: #a7c8c3;
+    --color-auth-brand-line: #294c48;
+    --color-auth-canvas: #071817;
+    --color-auth-surface: #0d2422;
+    --color-auth-ink: #eff7f5;
+    --color-auth-muted: #aec3bf;
+    --color-auth-border: #2d4b47;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
