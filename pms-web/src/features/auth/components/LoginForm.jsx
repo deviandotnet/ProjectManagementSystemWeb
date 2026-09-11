@@ -59,7 +59,7 @@ export function LoginForm() {
       </div>
 
       <form
-        className="mt-8 flex flex-col gap-5"
+        className="mt-8 space-y-5"
         noValidate
         onSubmit={handleSubmit(submitLogin)}
       >
@@ -73,7 +73,9 @@ export function LoginForm() {
           autoComplete="username"
           error={Boolean(errors.email)}
           fullWidth
-          helperText={errors.email?.message}
+          helperText={
+            errors.email?.message ?? 'Use the email linked to your account.'
+          }
           id="email"
           label="Email address"
           type="email"
@@ -84,14 +86,13 @@ export function LoginForm() {
           autoComplete="current-password"
           error={Boolean(errors.password)}
           fullWidth
-          helperText={errors.password?.message}
+          helperText={
+            errors.password?.message ?? 'Enter at least 6 characters.'
+          }
           id="password"
           label="Password"
           type={showPassword ? 'text' : 'password'}
           slotProps={{
-            htmlInput: {
-              className: 'auth-password-input',
-            },
             input: {
               endAdornment: (
                 <InputAdornment position="end">
