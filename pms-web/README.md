@@ -74,7 +74,7 @@ Avoid styling the same property through both MUI and Tailwind. The application r
 
 ## Data and authentication boundaries
 
-TanStack Query owns server state and Axios owns HTTP transport. The authentication feature posts credentials to `/users/login`, keeps access tokens in memory, persists refresh tokens in local storage, and restores sessions through `/auth/refresh`. Authenticated requests receive bearer tokens through the shared API client, and protected routes wait for restoration before rendering.
+TanStack Query owns server state and Axios owns HTTP transport. The shared tabbed authentication screen registers accounts through `/users`, signs users in through `/users/login`, keeps access tokens in memory, persists refresh tokens in local storage, and restores sessions through `/auth/refresh`. Successful registration returns to a prefilled sign-in form; it does not create a session automatically. Authenticated requests receive bearer tokens through the shared API client, and protected routes wait for restoration before rendering.
 
 Refresh rotation is serialized within a tab and across tabs. Login and refresh use a separate transport so authentication failures cannot create recursive renewal requests. Signing out clears credentials and user-scoped query data in every listening tab.
 

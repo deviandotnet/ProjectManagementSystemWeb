@@ -48,6 +48,17 @@ function useSuccessfulLoginHandlers() {
         isActive: true,
       }),
     ),
+    http.get('http://localhost:5141/api/dashboard', () =>
+      HttpResponse.json({
+        projects: [],
+        pageNumber: 1,
+        pageSize: 100,
+        totalCount: 0,
+        totalPages: 0,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      }),
+    ),
   )
 }
 
@@ -76,11 +87,26 @@ describe('login flow', () => {
           isActive: true,
         }),
       ),
+      http.get('http://localhost:5141/api/dashboard', () =>
+        HttpResponse.json({
+          projects: [],
+          pageNumber: 1,
+          pageSize: 100,
+          totalCount: 0,
+          totalPages: 0,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        }),
+      ),
     )
 
     renderRoute('/dashboard')
 
-    expect(await screen.findByText('dashboard')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Welcome to ProManage, Taylor',
+      }),
+    ).toBeInTheDocument()
     expect(localStorage.getItem('pms.auth.refresh-token')).toBe(
       'rotated-refresh-token',
     )
@@ -129,7 +155,11 @@ describe('login flow', () => {
     await user.type(screen.getByLabelText('Password'), 'secret1')
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    expect(await screen.findByText('dashboard')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Welcome to ProManage, Taylor',
+      }),
+    ).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/dashboard')
   })
 
@@ -180,7 +210,9 @@ describe('login flow', () => {
     expect(password).toHaveAttribute('type', 'text')
 
     await user.click(screen.getByRole('link', { name: 'Create account' }))
-    expect(await screen.findByText('register')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Create your account' }),
+    ).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/register')
   })
 })

@@ -1,3 +1,11 @@
+import { AuthLayout, AuthPanel, RegisterForm } from '../features/auth/index.js'
+
 export default function Register() {
-  return <div>register</div>
+  return (
+    <AuthLayout>
+      <AuthPanel>
+        <RegisterForm />
+      </AuthPanel>
+    </AuthLayout>
+  )
 }

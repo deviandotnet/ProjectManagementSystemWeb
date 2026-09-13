@@ -8,7 +8,17 @@ function encode(value) {
 
 const accessToken = `${encode({ alg: 'none' })}.${encode({ sub: userId })}.signature`
 
-async function mockSuccessfulLogin(page) {
+const emptyDashboard = {
+  projects: [],
+  pageNumber: 1,
+  pageSize: 100,
+  totalCount: 0,
+  totalPages: 0,
+  hasPreviousPage: false,
+  hasNextPage: false,
+}
+
+async function mockSuccessfulLogin(page, dashboard = emptyDashboard) {
   await page.route('**/api/users/login', async (route) => {
     await route.fulfill({
       contentType: 'application/json',
@@ -29,6 +39,27 @@ async function mockSuccessfulLogin(page) {
       }),
     })
   })
+  await page.route('http://localhost:5141/api/dashboard*', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify(dashboard),
+    })
+  })
+}
+
+async function signIn(page) {
+  await page.goto('/login')
+  await page.getByLabel('Email address').fill('taylor@example.com')
+  await page.getByRole('textbox', { name: 'Password' }).fill('secret1')
+  await page.getByRole('button', { name: 'Sign in' }).click()
+}
+
+async function fillRegistrationForm(page) {
+  await page.getByLabel('First name').fill('Taylor')
+  await page.getByLabel('Last name').fill('Kim')
+  await page.getByLabel('Email address').fill('taylor@example.com')
+  await page.getByLabel('Password', { exact: true }).fill('secret1')
+  await page.getByLabel('Confirm password').fill('secret1')
 }
 
 test('validates, signs in, and opens the dashboard', async ({ page }) => {
@@ -44,7 +75,12 @@ test('validates, signs in, and opens the dashboard', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in' }).click()
 
   await expect(page).toHaveURL(/\/dashboard$/)
-  await expect(page.getByText('dashboard')).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Welcome to ProManage, Taylor' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Create your first project' }),
+  ).toBeVisible()
   await expect(
     page.evaluate(() => localStorage.getItem('pms.auth.refresh-token')),
   ).resolves.toBe('refresh-token')
@@ -70,7 +106,9 @@ test('shows invalid credentials without revealing the failed field', async ({
   await expect(page).toHaveURL(/\/login$/)
 })
 
-test('opens the registration route', async ({ page }) => {
+test('switches to the registration tab and validates its fields', async ({
+  page,
+}) => {
   await page.goto('/login')
 
   await expect(
@@ -81,10 +119,54 @@ test('opens the registration route', async ({ page }) => {
     1,
   )
 
-  await page.getByRole('link', { name: 'Create account' }).click()
+  await page.getByRole('tab', { name: 'Create account' }).focus()
+  await page.keyboard.press('Enter')
 
   await expect(page).toHaveURL(/\/register$/)
-  await expect(page.getByText('register')).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Create your account' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tab', { name: 'Create account' }),
+  ).toHaveAttribute('aria-selected', 'true')
+
+  await page.getByRole('button', { name: 'Create account' }).click()
+  await expect(page.getByText('Enter your first name.')).toBeVisible()
+  await expect(page.getByText('Enter your last name.')).toBeVisible()
+  await expect(page.getByText('Enter your email address.')).toBeVisible()
+  await expect(page.getByText('Enter a password.')).toBeVisible()
+  await expect(page.getByText('Confirm your password.')).toBeVisible()
+})
+
+test('registers an account and returns to prefilled sign in', async ({
+  page,
+}) => {
+  let submittedBody
+  await page.route('**/api/users', async (route) => {
+    submittedBody = route.request().postDataJSON()
+    await route.fulfill({
+      status: 201,
+      contentType: 'application/json',
+      body: JSON.stringify('7da8200f-6ecf-48df-9f12-1fa49e150f70'),
+    })
+  })
+  await page.goto('/register')
+  await fillRegistrationForm(page)
+
+  await page.getByRole('button', { name: 'Create account' }).click()
+
+  await expect(page).toHaveURL(/\/login$/)
+  await expect(page.getByText('Account created.')).toBeVisible()
+  await expect(page.getByLabel('Email address')).toHaveValue(
+    'taylor@example.com',
+  )
+  expect(submittedBody).toEqual({
+    firstName: 'Taylor',
+    middleName: null,
+    lastName: 'Kim',
+    email: 'taylor@example.com',
+    password: 'secret1',
+  })
 })
 
 test('keeps the login form usable on a mobile viewport', async ({ page }) => {
@@ -97,4 +179,85 @@ test('keeps the login form usable on a mobile viewport', async ({ page }) => {
   await expect(page.getByLabel('Email address')).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Password' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible()
+
+  await page.getByRole('tab', { name: 'Create account' }).click()
+  await expect(page.getByLabel('First name')).toBeVisible()
+  await expect(page.getByLabel('Last name')).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Create account' }),
+  ).toBeVisible()
+})
+
+test('keeps the tabbed authentication layout usable at tablet width', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 820, height: 1000 })
+  await page.goto('/register')
+
+  await expect(
+    page.getByRole('heading', { name: 'Create your account' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tab', { name: 'Create account' }),
+  ).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('group', { name: 'Full name' })).toBeVisible()
+
+  const pageWidth = await page.evaluate(
+    () => document.documentElement.scrollWidth,
+  )
+  expect(pageWidth).toBeLessThanOrEqual(820)
+})
+
+test('renders the populated dashboard responsively from API data', async ({
+  page,
+}) => {
+  const dashboard = {
+    projects: [
+      {
+        projectId: 'b4a30c59-2092-40e0-a88f-d734a063fe04',
+        projectName: 'Website redesign',
+        status: 'Active',
+        progressPercent: 42,
+        totalActionItems: 7,
+        completedActionItems: 2,
+        ongoingActionItems: 3,
+        delayedActionItems: 1,
+        plannedActionItems: 1,
+        startDate: '2026-09-01',
+        endDate: '2026-12-15',
+        myRole: 'ProjectManager',
+      },
+    ],
+    pageNumber: 1,
+    pageSize: 100,
+    totalCount: 1,
+    totalPages: 1,
+    hasPreviousPage: false,
+    hasNextPage: false,
+  }
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await mockSuccessfulLogin(page, dashboard)
+  await signIn(page)
+
+  await expect(
+    page.getByRole('heading', { name: 'Welcome back, Taylor' }),
+  ).toBeVisible()
+  await expect(page.getByRole('table')).toBeVisible()
+  await expect(page.getByText('1 delayed')).toBeVisible()
+
+  await page.setViewportSize({ width: 820, height: 1000 })
+  await expect(page.getByRole('article')).toBeVisible()
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  const pageWidth = await page.evaluate(
+    () => document.documentElement.scrollWidth,
+  )
+  expect(pageWidth).toBeLessThanOrEqual(390)
+  await expect(page.getByRole('article')).toBeVisible()
+
+  await page.setViewportSize({ width: 320, height: 800 })
+  const narrowPageWidth = await page.evaluate(
+    () => document.documentElement.scrollWidth,
+  )
+  expect(narrowPageWidth).toBeLessThanOrEqual(320)
 })

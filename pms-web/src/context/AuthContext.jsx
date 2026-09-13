@@ -6,6 +6,7 @@ import {
   getAuthenticatedUser,
   loginUser,
   refreshTokens,
+  registerUser,
 } from '../features/auth/api/authService.js'
 import {
   configureRefreshRequest,
@@ -101,6 +102,10 @@ export function AuthProvider({ children }) {
     [loadUser, queryClient],
   )
 
+  const register = useCallback(async (credentials, signal) => {
+    return registerUser(credentials, signal)
+  }, [])
+
   const logout = useCallback(() => endSession(), [endSession])
 
   useEffect(() => {
@@ -155,9 +160,10 @@ export function AuthProvider({ children }) {
       isAuthenticated: session.status === 'authenticated',
       login,
       logout,
+      register,
       retryRestoration: restoreSession,
     }),
-    [login, logout, restoreSession, session],
+    [login, logout, register, restoreSession, session],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

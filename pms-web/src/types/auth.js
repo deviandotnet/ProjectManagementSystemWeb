@@ -5,6 +5,15 @@
  */
 
 /**
+ * @typedef {object} RegistrationCredentials
+ * @property {string} firstName
+ * @property {string|null} middleName
+ * @property {string} lastName
+ * @property {string} email
+ * @property {string} password
+ */
+
+/**
  * @typedef {object} TokenPair
  * @property {string} accessToken
  * @property {string} refreshToken

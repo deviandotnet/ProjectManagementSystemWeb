@@ -28,3 +28,6 @@ test-results
 *.njsproj
 *.sln
 *.sw?
+
+#playwright CLI generated files
+.playwright-cli/
