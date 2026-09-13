@@ -69,7 +69,7 @@ export function AuthLayout({ children }) {
               <LayersOutlinedIcon aria-hidden="true" fontSize="medium" />
             </span>
             <span className="text-2xl font-semibold tracking-tight">
-              ProManage
+              Workline
             </span>
           </div>
 
