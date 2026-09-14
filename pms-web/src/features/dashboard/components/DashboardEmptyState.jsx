@@ -2,7 +2,7 @@ import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import Link from '@mui/material/Link'
 import { Link as RouterLink } from 'react-router-dom'
 import { routes } from '../../../constants/routes.js'
-import { DisabledCreateButton } from './DashboardShell.jsx'
+import { CreateProjectButton } from './DashboardShell.jsx'
 
 const SETUP_STEPS = [
   {
@@ -83,7 +83,7 @@ function FolderBlueprint() {
   )
 }
 
-export function DashboardEmptyState() {
+export function DashboardEmptyState({ onCreateProject }) {
   return (
     <section className="rounded-2xl border border-dashboard-border bg-dashboard-surface p-5 sm:p-8 lg:p-10">
       <p className="font-mono text-xs uppercase tracking-[0.13em] text-dashboard-muted">
@@ -100,7 +100,7 @@ export function DashboardEmptyState() {
             in one shared workspace.
           </p>
           <div className="mt-7">
-            <DisabledCreateButton />
+            <CreateProjectButton onClick={onCreateProject} />
           </div>
           <Link
             className="mt-5 inline-flex"

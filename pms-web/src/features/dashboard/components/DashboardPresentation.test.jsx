@@ -28,6 +28,7 @@ function renderDashboard(props = {}) {
         firstName="Taylor"
         isError={false}
         isLoading={false}
+        onCreateProject={vi.fn()}
         onLogout={vi.fn()}
         onRetry={vi.fn()}
         {...props}
@@ -52,18 +53,14 @@ describe('dashboard presentation', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Welcome to ProManage, Taylor',
+        name: 'Welcome to Workflow, Taylor',
       }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Create your first project' }),
     ).toBeInTheDocument()
-    expect(
-      screen.getAllByRole('button', { name: 'Create project unavailable' }),
-    ).toHaveLength(2)
-    expect(
-      screen.getAllByRole('button', { name: 'Create project unavailable' })[0],
-    ).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'New project' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Create project' })).toBeEnabled()
   })
 
   it('renders real project data and delayed-project attention', () => {
@@ -98,6 +95,7 @@ describe('dashboard presentation', () => {
           firstName="Taylor"
           isError={false}
           isLoading
+          onCreateProject={vi.fn()}
           onLogout={vi.fn()}
           onRetry={onRetry}
         />
@@ -115,6 +113,7 @@ describe('dashboard presentation', () => {
           firstName="Taylor"
           isError
           isLoading={false}
+          onCreateProject={vi.fn()}
           onLogout={vi.fn()}
           onRetry={onRetry}
         />
@@ -143,5 +142,26 @@ describe('dashboard presentation', () => {
 
     await user.click(screen.getAllByRole('button', { name: 'Sign out' })[0])
     expect(onLogout).toHaveBeenCalledOnce()
+  })
+
+  it('opens project creation from the header and empty state', async () => {
+    const onCreateProject = vi.fn()
+    const user = userEvent.setup()
+    renderDashboard({
+      data: {
+        projects: [],
+        pageNumber: 1,
+        pageSize: 100,
+        totalCount: 0,
+        totalPages: 0,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+      onCreateProject,
+    })
+
+    await user.click(screen.getByRole('button', { name: 'New project' }))
+    await user.click(screen.getByRole('button', { name: 'Create project' }))
+    expect(onCreateProject).toHaveBeenCalledTimes(2)
   })
 })

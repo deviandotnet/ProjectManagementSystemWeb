@@ -57,7 +57,7 @@ export function RegisterForm() {
           Create your account
         </h1>
         <p className="mt-2 max-w-xl text-base leading-7 text-auth-muted">
-          Get started with ProManage and turn your plans into progress.
+          Get started with Workflow and turn your plans into progress.
         </p>
       </div>
 

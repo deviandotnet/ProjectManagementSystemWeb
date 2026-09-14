@@ -93,6 +93,80 @@
   }
 }
 
+@layer components {
+  .react-datepicker-wrapper,
+  .react-datepicker__input-container {
+    width: 100%;
+  }
+
+  .workflow-datepicker-popper {
+    z-index: 1500;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .workflow-datepicker {
+    overflow: hidden;
+    border: 1px solid var(--color-dashboard-border);
+    border-radius: 0.875rem;
+    color: var(--color-dashboard-ink);
+    background: var(--color-dashboard-surface);
+    box-shadow: 0 0.75rem 2rem rgb(8 41 39 / 14%);
+    font-family: inherit;
+  }
+
+  .workflow-datepicker .react-datepicker__header {
+    border-color: var(--color-dashboard-border);
+    background: var(--color-dashboard-surface-muted);
+  }
+
+  .workflow-datepicker .react-datepicker__current-month,
+  .workflow-datepicker .react-datepicker__day-name,
+  .workflow-datepicker .react-datepicker__day,
+  .workflow-datepicker .react-datepicker__month-text,
+  .workflow-datepicker .react-datepicker__year-text {
+    color: var(--color-dashboard-ink);
+  }
+
+  .workflow-datepicker .react-datepicker__day--outside-month {
+    color: var(--color-dashboard-muted);
+    opacity: 0.6;
+  }
+
+  .workflow-datepicker .react-datepicker__day:hover,
+  .workflow-datepicker .react-datepicker__month-text:hover,
+  .workflow-datepicker .react-datepicker__year-text:hover {
+    border-radius: 0.5rem;
+    background: var(--color-dashboard-accent-soft);
+  }
+
+  .workflow-datepicker .react-datepicker__day--selected,
+  .workflow-datepicker .react-datepicker__day--keyboard-selected,
+  .workflow-datepicker .react-datepicker__month-text--selected,
+  .workflow-datepicker .react-datepicker__year-text--selected {
+    border-radius: 0.5rem;
+    color: var(--color-dashboard-surface);
+    background: var(--color-dashboard-accent-strong);
+  }
+
+  .workflow-datepicker .react-datepicker__day--disabled {
+    color: var(--color-dashboard-muted);
+    opacity: 0.45;
+  }
+
+  .workflow-datepicker .react-datepicker__navigation-icon::before {
+    border-color: var(--color-dashboard-ink);
+  }
+
+  .workflow-datepicker .react-datepicker__month-select,
+  .workflow-datepicker .react-datepicker__year-select {
+    min-height: 2rem;
+    border: 1px solid var(--color-dashboard-border);
+    border-radius: 0.4rem;
+    color: var(--color-dashboard-ink);
+    background: var(--color-dashboard-surface);
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --color-auth-accent: #63d6cd;

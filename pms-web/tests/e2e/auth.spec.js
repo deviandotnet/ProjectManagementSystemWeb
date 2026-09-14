@@ -40,9 +40,11 @@ async function mockSuccessfulLogin(page, dashboard = emptyDashboard) {
     })
   })
   await page.route('http://localhost:5141/api/dashboard*', async (route) => {
+    const dashboardResponse =
+      typeof dashboard === 'function' ? dashboard() : dashboard
     await route.fulfill({
       contentType: 'application/json',
-      body: JSON.stringify(dashboard),
+      body: JSON.stringify(dashboardResponse),
     })
   })
 }
@@ -76,7 +78,7 @@ test('validates, signs in, and opens the dashboard', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/dashboard$/)
   await expect(
-    page.getByRole('heading', { name: 'Welcome to ProManage, Taylor' }),
+    page.getByRole('heading', { name: 'Welcome to Workflow, Taylor' }),
   ).toBeVisible()
   await expect(
     page.getByRole('heading', { name: 'Create your first project' }),
@@ -260,4 +262,114 @@ test('renders the populated dashboard responsively from API data', async ({
     () => document.documentElement.scrollWidth,
   )
   expect(narrowPageWidth).toBeLessThanOrEqual(320)
+})
+
+test('creates a project with the shared date picker and refreshes the dashboard', async ({
+  page,
+}) => {
+  const createdProjectId = 'b4a30c59-2092-40e0-a88f-d734a063fe04'
+  let submittedBody
+  let projectCreated = false
+  const populatedDashboard = {
+    ...emptyDashboard,
+    projects: [
+      {
+        projectId: createdProjectId,
+        projectName: 'Website redesign',
+        status: 'Active',
+        progressPercent: 0,
+        totalActionItems: 0,
+        completedActionItems: 0,
+        ongoingActionItems: 0,
+        delayedActionItems: 0,
+        plannedActionItems: 0,
+        startDate: '2026-11-02',
+        endDate: '2027-01-29',
+        myRole: 'ProjectManager',
+      },
+    ],
+    totalCount: 1,
+    totalPages: 1,
+  }
+
+  await mockSuccessfulLogin(page, () =>
+    projectCreated ? populatedDashboard : emptyDashboard,
+  )
+  await page.route('**/api/projects', async (route) => {
+    submittedBody = route.request().postDataJSON()
+    projectCreated = true
+    await route.fulfill({
+      status: 201,
+      contentType: 'application/json',
+      body: JSON.stringify(createdProjectId),
+    })
+  })
+  await signIn(page)
+
+  await page
+    .getByRole('button', { name: 'Create project', exact: true })
+    .click()
+  await expect(
+    page.getByRole('heading', { name: 'Create project' }),
+  ).toBeVisible()
+  await page.getByLabel('Project name').fill('Website redesign')
+  await page.getByLabel('Description').fill('Refresh the public website.')
+
+  await page.getByRole('textbox', { name: 'Start date' }).click()
+  await page.locator('.react-datepicker__month-select').selectOption('10')
+  await page.locator('.react-datepicker__year-select').selectOption('2026')
+  await page
+    .locator(
+      '.react-datepicker__day:not(.react-datepicker__day--outside-month)',
+    )
+    .filter({ hasText: /^2$/ })
+    .click()
+
+  await page.getByRole('textbox', { name: 'End date' }).click()
+  await page.locator('.react-datepicker__year-select').selectOption('2027')
+  await page.locator('.react-datepicker__month-select').selectOption('0')
+  await page
+    .locator(
+      '.react-datepicker__day:not(.react-datepicker__day--outside-month)',
+    )
+    .filter({ hasText: /^29$/ })
+    .click()
+
+  await page
+    .getByRole('button', { name: 'Create project', exact: true })
+    .click()
+
+  await expect(page.getByText('Project created.')).toBeVisible()
+  await expect(page.getByText('Website redesign').first()).toBeVisible()
+  expect(submittedBody).toEqual({
+    name: 'Website redesign',
+    description: 'Refresh the public website.',
+    startDate: '2026-11-02',
+    endDate: '2027-01-29',
+    weekStartDay: 1,
+    defaultTimelineScale: 2,
+    progressMode: 1,
+  })
+})
+
+test('keeps the create project calendar inside a mobile viewport', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockSuccessfulLogin(page)
+  await signIn(page)
+
+  await page
+    .getByRole('button', { name: 'Create project', exact: true })
+    .click()
+  await page.getByRole('textbox', { name: 'Start date' }).click()
+
+  const calendarBounds = await page
+    .locator('.workflow-datepicker')
+    .boundingBox()
+  expect(calendarBounds.x).toBeGreaterThanOrEqual(0)
+  expect(calendarBounds.x + calendarBounds.width).toBeLessThanOrEqual(390)
+  await expect(
+    page.getByRole('button', { name: 'Create project', exact: true }),
+  ).toBeVisible()
 })

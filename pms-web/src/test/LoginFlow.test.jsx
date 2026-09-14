@@ -104,7 +104,7 @@ describe('login flow', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: 'Welcome to ProManage, Taylor',
+        name: 'Welcome to Workflow, Taylor',
       }),
     ).toBeInTheDocument()
     expect(localStorage.getItem('pms.auth.refresh-token')).toBe(
@@ -157,7 +157,7 @@ describe('login flow', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: 'Welcome to ProManage, Taylor',
+        name: 'Welcome to Workflow, Taylor',
       }),
     ).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/dashboard')

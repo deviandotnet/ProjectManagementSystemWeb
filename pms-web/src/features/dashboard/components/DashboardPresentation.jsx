@@ -48,16 +48,22 @@ export function DashboardPresentation({
   firstName,
   isError,
   isLoading,
+  onCreateProject,
   onLogout,
   onRetry,
 }) {
   const isEmpty = !isLoading && !isError && data?.totalCount === 0
 
   return (
-    <DashboardShell firstName={firstName} isEmpty={isEmpty} onLogout={onLogout}>
+    <DashboardShell
+      firstName={firstName}
+      isEmpty={isEmpty}
+      onCreateProject={onCreateProject}
+      onLogout={onLogout}
+    >
       {isLoading && <DashboardLoading />}
       {isError && <DashboardUnavailable error={error} onRetry={onRetry} />}
-      {isEmpty && <DashboardEmptyState />}
+      {isEmpty && <DashboardEmptyState onCreateProject={onCreateProject} />}
       {!isLoading && !isError && data?.totalCount > 0 && (
         <DashboardOverview data={data} />
       )}

@@ -21,25 +21,19 @@ function BrandMark() {
   return (
     <div className="flex items-center gap-3 text-dashboard-sidebar-ink">
       <LayersOutlined className="text-dashboard-accent" fontSize="large" />
-      <span className="text-xl font-bold tracking-[-0.025em]">ProManage</span>
+      <span className="text-xl font-bold tracking-[-0.025em]">Workflow</span>
     </div>
   )
 }
 
-function DisabledCreateButton({ compact = false }) {
+function CreateProjectButton({ compact = false, onClick }) {
   return (
     <Button
-      aria-label="Create project unavailable"
-      disabled
+      onClick={onClick}
       startIcon={<AddOutlined />}
       sx={{
         minHeight: compact ? 40 : 44,
         px: compact ? 1.5 : 2.5,
-        '&.Mui-disabled': {
-          backgroundColor: 'var(--color-dashboard-disabled)',
-          color: 'var(--color-dashboard-disabled-ink)',
-          opacity: 1,
-        },
       }}
       variant="contained"
     >
@@ -52,10 +46,11 @@ export function DashboardShell({
   children,
   firstName,
   isEmpty = false,
+  onCreateProject,
   onLogout,
 }) {
   const title = isEmpty
-    ? `Welcome to ProManage, ${firstName}`
+    ? `Welcome to Workflow, ${firstName}`
     : `Welcome back, ${firstName}`
   const subtitle = isEmpty
     ? 'Your project workspace is ready.'
@@ -137,7 +132,7 @@ export function DashboardShell({
                 <CalendarMonthOutlined fontSize="small" />
                 <time dateTime={new Date().toISOString()}>{today}</time>
               </span>
-              <DisabledCreateButton compact />
+              <CreateProjectButton compact onClick={onCreateProject} />
               <span className="hidden border-l border-dashboard-border pl-4 font-mono text-[0.65rem] uppercase leading-4 tracking-[0.12em] text-dashboard-muted xl:block">
                 Disciplined projects
                 <br />
@@ -152,4 +147,4 @@ export function DashboardShell({
   )
 }
 
-export { DisabledCreateButton }
+export { CreateProjectButton }
