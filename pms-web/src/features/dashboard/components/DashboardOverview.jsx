@@ -54,56 +54,91 @@ function StatusBadge({ status }) {
 }
 
 function MetricBand({ summary }) {
-  const metrics = [
-    {
-      label: 'Accessible projects',
-      value: summary.accessibleProjects,
-      icon: FolderOpenOutlined,
-      tone: 'text-dashboard-accent-strong bg-dashboard-accent-soft',
-    },
+  const supportingMetrics = [
     {
       label: 'Active projects',
       value: summary.activeProjects,
       icon: PlayCircleOutlined,
       tone: 'text-dashboard-success bg-dashboard-success-soft',
+      accent: 'bg-dashboard-success',
     },
     {
       label: 'Projects with delays',
       value: summary.projectsWithDelays,
       icon: WarningAmberOutlined,
       tone: 'text-dashboard-danger bg-dashboard-danger-soft',
+      accent: 'bg-dashboard-danger',
     },
     {
       label: 'Completed projects',
       value: summary.completedProjects,
       icon: CheckCircleOutlined,
       tone: 'text-dashboard-complete bg-dashboard-complete-soft',
+      accent: 'bg-dashboard-complete',
     },
   ]
 
   return (
     <section
       aria-label="Project overview"
-      className="grid overflow-hidden rounded-2xl border border-dashboard-border bg-dashboard-surface min-[360px]:grid-cols-2 xl:grid-cols-4"
+      className="grid overflow-hidden rounded-2xl border border-dashboard-border bg-dashboard-surface min-[420px]:grid-cols-3 xl:grid-cols-[minmax(20rem,1.5fr)_repeat(3,minmax(0,1fr))]"
     >
-      {metrics.map(({ icon: Icon, label, tone, value }) => (
-        <div
-          className="flex min-h-28 items-center gap-3 border-b border-dashboard-border px-4 py-4 min-[360px]:odd:border-r sm:gap-4 sm:px-5 xl:border-b-0 xl:not-last:border-r"
-          key={label}
-        >
-          <span
-            className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${tone}`}
-          >
-            <Icon fontSize="small" />
-          </span>
-          <div>
-            <p className="text-3xl font-bold tracking-[-0.03em] tabular-nums">
-              {value}
+      <article
+        aria-label={`Accessible projects: ${summary.accessibleProjects}`}
+        className="flex min-h-36 items-center gap-4 border-b border-dashboard-border px-5 py-5 min-[420px]:col-span-3 sm:gap-5 sm:px-6 xl:col-span-1 xl:border-r xl:border-b-0"
+      >
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-dashboard-accent-strong text-dashboard-surface sm:h-16 sm:w-16">
+          <FolderOpenOutlined fontSize="medium" />
+        </span>
+        <div className="min-w-0">
+          <p className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-dashboard-muted">
+            Portfolio access
+          </p>
+          <div className="mt-1 flex items-baseline gap-3">
+            <p className="text-5xl font-bold leading-none tracking-[-0.05em] tabular-nums sm:text-6xl">
+              {summary.accessibleProjects}
             </p>
-            <p className="mt-0.5 text-sm text-dashboard-muted">{label}</p>
+            <p className="text-sm font-semibold text-dashboard-ink">
+              Accessible projects
+            </p>
           </div>
+          <p className="mt-2 max-w-64 text-sm leading-5 text-dashboard-muted">
+            Projects you can access across the organization.
+          </p>
         </div>
-      ))}
+      </article>
+
+      {supportingMetrics.map(
+        ({ accent, icon: Icon, label, tone, value }, index) => (
+          <article
+            aria-label={`${label}: ${value}`}
+            className={`relative flex min-h-28 items-center gap-3 border-dashboard-border px-4 py-5 sm:px-5 xl:min-h-36 ${
+              index === 0
+                ? ''
+                : 'border-t min-[420px]:border-t-0 min-[420px]:border-l'
+            }`}
+            key={label}
+          >
+            <span
+              className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${tone}`}
+            >
+              <Icon fontSize="small" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-3xl font-bold leading-none tracking-[-0.04em] tabular-nums">
+                {value}
+              </p>
+              <p className="mt-2 text-sm leading-5 text-dashboard-muted">
+                {label}
+              </p>
+            </div>
+            <span
+              aria-hidden="true"
+              className={`absolute inset-x-4 bottom-0 h-1 rounded-t-full sm:inset-x-5 ${accent}`}
+            />
+          </article>
+        ),
+      )}
     </section>
   )
 }

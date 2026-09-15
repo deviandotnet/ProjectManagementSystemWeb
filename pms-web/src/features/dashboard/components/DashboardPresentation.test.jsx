@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
@@ -81,6 +81,35 @@ describe('dashboard presentation', () => {
     ).toBeInTheDocument()
     expect(screen.getAllByText('Website redesign').length).toBeGreaterThan(0)
     expect(screen.getByText('1 delayed')).toBeInTheDocument()
+    const overview = screen.getByRole('region', { name: 'Project overview' })
+    const overviewContent = within(overview)
+
+    expect(overviewContent.getByText('Accessible projects')).toBeInTheDocument()
+    expect(overviewContent.getByText('Active projects')).toBeInTheDocument()
+    expect(
+      overviewContent.getByText('Projects with delays'),
+    ).toBeInTheDocument()
+    expect(overviewContent.getByText('Completed projects')).toBeInTheDocument()
+    expect(
+      overviewContent.getByText(
+        'Projects you can access across the organization.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      overviewContent.getByRole('article', { name: 'Accessible projects: 1' }),
+    ).toBeInTheDocument()
+    expect(
+      overviewContent.getByRole('article', { name: 'Active projects: 1' }),
+    ).toBeInTheDocument()
+    expect(
+      overviewContent.getByRole('article', { name: 'Projects with delays: 1' }),
+    ).toBeInTheDocument()
+    expect(
+      overviewContent.getByRole('article', { name: 'Completed projects: 0' }),
+    ).toBeInTheDocument()
+    expect(overview.textContent.indexOf('Accessible projects')).toBeLessThan(
+      overview.textContent.indexOf('Active projects'),
+    )
     expect(
       screen.queryByText('Create your first project'),
     ).not.toBeInTheDocument()

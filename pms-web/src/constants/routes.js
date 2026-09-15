@@ -4,6 +4,7 @@ export const routes = Object.freeze({
   register: '/register',
   account: '/account',
   dashboard: '/dashboard',
+  projects: '/projects',
   project: '/projects/:projectId',
   projectSettings: '/projects/:projectId/settings',
   adminHolidays: '/admin/holidays',

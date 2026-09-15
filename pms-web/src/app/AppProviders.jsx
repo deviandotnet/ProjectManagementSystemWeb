@@ -13,7 +13,8 @@ import { appTheme } from './theme.js'
 export function AppProviders({
   router = applicationRouter,
   client = queryClient,
-  showDevtools = import.meta.env.DEV,
+  showDevtools = import.meta.env.DEV &&
+    import.meta.env.VITE_QUERY_DEVTOOLS === 'true',
 }) {
   return (
     <ErrorBoundary FallbackComponent={AppErrorFallback}>

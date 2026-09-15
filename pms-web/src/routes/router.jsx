@@ -9,6 +9,8 @@ import {
 import {
   LazyDashboard,
   LazyLoginPage,
+  LazyProjects,
+  LazyProjectWorkspace,
   LazyRegister,
 } from './RouteLazyPages.jsx'
 
@@ -28,15 +30,14 @@ export const routeDefinitions = [
     element: <ProtectedRoute />,
     children: [
       { path: routes.dashboard, element: <LazyDashboard /> },
+      { path: routes.projects, element: <LazyProjects /> },
       {
         path: routes.account,
         element: <PlaceholderRoute path={routes.account} title="Account" />,
       },
       {
         path: routes.project,
-        element: (
-          <PlaceholderRoute path={routes.project} title="Project workspace" />
-        ),
+        element: <LazyProjectWorkspace />,
       },
       {
         path: routes.projectSettings,
